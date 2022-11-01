@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS categories;
+
+CREATE TABLE categories(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(250) NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE items(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code VARCHAR(10) NOT NULL,
+    name VARCHAR(250) NOT NULL,
+    preparation_code INTEGER NOT NULL,
+    preparation VARCHAR(100) NOT NULL,
+    energy REAL NOT NULL,
+    protein REAL NOT NULL,
+    lipids REAL NOT NULL,
+    carbohydrate REAL NOT NULL,
+    fiber REAL NOT NULL,
+  	category_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  
+  	FOREIGN KEY(category_id) REFERENCES categories(id)
+);
