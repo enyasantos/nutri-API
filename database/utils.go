@@ -34,7 +34,7 @@ func scan_cantegory(rows *sql.Rows, item *Category) error {
 	return err
 }
 
-func FindCategoryByName(db *sql.DB, category string) []Category {
+func FindCategoryByName(db *sql.DB, category string) (*[]Category, error) {
 	var categories []Category
 
 	rows, err := db.Query(`
@@ -42,19 +42,23 @@ func FindCategoryByName(db *sql.DB, category string) []Category {
 		FROM categories 
 		WHERE name LIKE ?
 	`, category+"%")
-	errors.CheckError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var category Category
 		err = scan_cantegory(rows, &category)
-		errors.CheckError(err)
+		if err != nil {
+			return nil, err
+		}
 		categories = append(categories, category)
 	}
 
-	return categories
+	return &categories, nil
 }
 
-func FindItemByCategory(db *sql.DB, category int) []Item {
+func FindItemByCategory(db *sql.DB, category int) (*[]Item, error) {
 	var items []Item
 
 	rows, err := db.Query(`
@@ -62,19 +66,23 @@ func FindItemByCategory(db *sql.DB, category int) []Item {
 		FROM items 
 		WHERE category_id = ?
 	`, category)
-	errors.CheckError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var item Item
 		err = scan_item(rows, &item)
-		errors.CheckError(err)
+		if err != nil {
+			return nil, err
+		}
 		items = append(items, item)
 	}
 
-	return items
+	return &items, nil
 }
 
-func FindItemByName(db *sql.DB, find string) []Item {
+func FindItemByName(db *sql.DB, find string) (*[]Item, error) {
 	var items []Item
 
 	rows, err := db.Query(`
@@ -82,16 +90,20 @@ func FindItemByName(db *sql.DB, find string) []Item {
 		FROM items 
 		WHERE name LIKE ?
 	`, find+"%")
-	errors.CheckError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var item Item
 		err = scan_item(rows, &item)
-		errors.CheckError(err)
+		if err != nil {
+			return nil, err
+		}
 		items = append(items, item)
 	}
 
-	return items
+	return &items, nil
 }
 
 func InsertCategory(db *sql.DB, name string) int64 {

@@ -4,6 +4,7 @@ import (
 	"app/errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -36,7 +37,7 @@ func ReadFile(file File) ([]string, [][][]string) {
 				values = append(values, temp)
 				temp = nil
 			}
-			categories = append(categories, category)
+			categories = append(categories, strings.TrimSpace(category))
 		} else {
 			// A até I
 			items_by_category = nil
@@ -44,7 +45,7 @@ func ReadFile(file File) ([]string, [][][]string) {
 			for j := 1; j < 10; j++ {
 				cell := string(next_char) + strconv.Itoa(i)
 				value, err := f.GetCellValue(sheet_name, cell)
-				items_by_category = append(items_by_category, value)
+				items_by_category = append(items_by_category, strings.TrimSpace(value))
 				errors.CheckError(err)
 
 				next_char = nextChar(next_char)

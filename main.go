@@ -1,67 +1,43 @@
 package main
 
 import (
-	"app/database"
-	"app/errors"
+	"app/pkg/service/router"
+	"app/settings"
 	"fmt"
+	"log"
+	"net/http"
 
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func init() {
+	var error error
+
+	if error = godotenv.Load(); error != nil {
+		log.Fatal(error)
+	}
+
+	settings.Setup()
+}
+
 func main() {
 	//create_database()
+	//test()
 
-	db, err := database.Connection()
-	errors.CheckError(err)
+	routersInit := router.InitRouter()
+	readTimeout := settings.ServerSetting.ReadTimeout
+	writeTimeout := settings.ServerSetting.WriteTimeout
+	port := settings.ApiSetting.ServerPort
 
-	category := "frutas"
-	categories := database.FindCategoryByName(db, category)
-	for _, category := range categories {
-		fmt.Println(
-			category.ID,
-			category.Name,
-			category.CreatedAt,
-		)
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%s", port),
+		Handler:      routersInit,
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
 	}
 
-	find := "arroz i"
-	items := database.FindItemByName(db, find)
-	for _, item := range items {
-		fmt.Println(
-			item.ID,
-			item.Code,
-			item.Name,
-			item.PreparationCode,
-			item.Preparation,
-			item.Energy,
-			item.Protein,
-			item.Lipids,
-			item.Carbohydrate,
-			item.Fiber,
-			item.CategoryId,
-			item.CreatedAt,
-		)
-	}
-
-	category_id := categories[0].ID
-	items = database.FindItemByCategory(db, category_id)
-	for _, item := range items {
-		fmt.Println(
-			item.ID,
-			item.Code,
-			item.Name,
-			item.PreparationCode,
-			item.Preparation,
-			item.Energy,
-			item.Protein,
-			item.Lipids,
-			item.Carbohydrate,
-			item.Fiber,
-			item.CategoryId,
-			item.CreatedAt,
-		)
-	}
-
-	database.CloseConnection(db)
+	log.Default().Printf("[info] Server running on http://localhost:%s", port)
+	server.ListenAndServe()
 
 }
